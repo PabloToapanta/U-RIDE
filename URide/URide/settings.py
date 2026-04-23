@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'uride_db',
         'USER': 'uride_admin',
-        'PASSWORD': 'Danyelisr@1988.',
+        'PASSWORD': os.getenv('PASSWORD'),
         'HOST': 'localhost',  # ¡Apunta a tu propia máquina!
         'PORT': '5432'        # El puerto por defecto de Postgres
     }

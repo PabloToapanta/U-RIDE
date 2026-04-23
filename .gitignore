@@ -1,0 +1,14 @@
+# Entornos virtuales
+venv/
+env/
+.venv/
+
+# Variables de entorno (¡La caja fuerte!)
+.env
+
+# Archivos compilados de Python (Basura temporal)
+__pycache__/
+*.pyc
+
+# Base de datos SQLite (Si alguna vez la usaste de prueba)
+db.sqlite3
