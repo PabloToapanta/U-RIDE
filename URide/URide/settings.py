@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'cuentas.apps.CuentasConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,3 +124,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# 1. MEDIA_URL: Es el link público. Si alguien quiere ver la foto, la URL empezará así.
+MEDIA_URL = '/media/'
+
+# 2. MEDIA_ROOT: Es la ruta física real 
+# Le dice: "Crea una carpeta llamada 'media' justo al lado del archivo manage.py"
+MEDIA_ROOT = BASE_DIR / 'media'
+
+AUTH_USER_MODEL = 'cuentas.Usuario' #Nuevo modelo de autenticacion
