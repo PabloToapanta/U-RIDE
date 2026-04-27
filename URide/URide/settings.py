@@ -59,7 +59,7 @@ ROOT_URLCONF = 'URide.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR/'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -133,3 +133,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'cuentas.Usuario' #Nuevo modelo de autenticacion
+
+# URide/settings.py
+LOGIN_REDIRECT_URL = '/'  # Después del login, llévalo al Home
+LOGOUT_REDIRECT_URL = '/login/' # Después de cerrar sesión, llévalo al login
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
