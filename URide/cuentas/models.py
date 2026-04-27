@@ -47,6 +47,8 @@ class Usuario(AbstractUser):
     zona_referencial=models.CharField(max_length=50)
     es_conductor=models.BooleanField(default=False)
     fecha_fin_suspension=models.DateField(null=True,blank=True) #SOLO FECHA, NO HORA
+    # Añadimos el campo que faltaba para el RF2
+    numero_contacto = models.CharField(max_length=10, null=True, blank=True)
 
     objects=GerenteUsuarioPersonalizado()
     #QUITAMOS ATRIBUTO USERNAME
