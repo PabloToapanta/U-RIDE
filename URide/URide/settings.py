@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'viajes.apps.ViajesConfig',
     'cuentas.apps.CuentasConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -139,3 +140,6 @@ LOGIN_REDIRECT_URL = '/'  # Después del login, llévalo al Home
 LOGOUT_REDIRECT_URL = '/login/' # Después de cerrar sesión, llévalo al login
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+#Modelo de autenticacion
+AUTH_USER_MODEL='cuentas.Usuario'  
