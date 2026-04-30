@@ -40,7 +40,10 @@
               <a class="nav-link" href="#">Viajes</a>
             </li>
             <li class="nav-item">
-              <span class="nav-link text-info">Hola, {{ user.email }}</span>
+              <span class="nav-link text-info">
+
+                <a class="nav-link text-info" href="{% url 'perfil' %}">Hola, {{ user.first_name|default:user.email }}</a>
+              </span>
             </li>
             <li class="nav-item">
               <form action="{% url 'logout' %}" method="post" class="d-inline">

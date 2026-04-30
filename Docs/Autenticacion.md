@@ -87,3 +87,65 @@ if settings.DEBUG:
 Sobrescritura del Gestor de Usuarios (BaseUserManager)
 
 La necesidad de implementar un gestor de usuarios personalizado en el marco de trabajo de Django radica en la disociación estructural entre la capa del modelo de datos y la capa de instanciación de objetos. Al extender la clase `AbstractUser` para reemplazar el identificador clásico por defecto (`username`) y establecer el correo electrónico institucional como la credencial principal de acceso (`USERNAME_FIELD = 'email'`), se modifica exitosamente la representación de la entidad en la base de datos. No obstante, el manejador de base de datos predeterminado (`UserManager`), el cual orquesta las operaciones de creación mediante la interfaz de línea de comandos (CLI), conserva en su código base la exigencia del atributo `username` como argumento posicional estricto. Por consiguiente, para garantizar la cohesión arquitectónica y evitar excepciones de tipo `TypeError` durante el despliegue y administración del sistema, resulta un requerimiento técnico imperativo sobrescribir los métodos `create_user` y `create_superuser`. Esta reestructuración asegura que la lógica de persistencia se alinee íntegramente con las restricciones del dominio del negocio de *U-Ride*, eliminando dependencias obsoletas y validando el correo electrónico como identificador único y absoluto desde el momento de la instanciación.
+
+## INTERFAZ GRAFICA
+
+Para iniciar con la vista, creamos una carpeta llamada `templates` y le avisamos a django que en esa carpeta van a estar las plantillas
+
+``` python
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [BASE_DIR/'templates'],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+```
+
+Seguido esto, creamos el arhcivo `base.html` la cual funcionara como plantilla generica para todo el proyecto.
+
+### Base.html
+Para la elaboracion, utilizamos BootStrap via CDN y aplicamos una (navbar)[https://getbootstrap.com/docs/4.0/components/navbar/]
+
+#### Login.html
+Primero configuramos la url de un login en urls.py
+``` python
+from django.contrib.auth import views as auth_views
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('login/'),auth_views.LoginView.as_view(template_name='login.html',name='login'),
+]
+```
+
+Despues aniadimos el codigo a login.html
+
+Seguido de esto aniadimos estos ajustes a settings.py para que cuando un usuario ingrese, se lo redirija a la URL correcta
+
+``` python
+# URide/settings.py
+LOGIN_REDIRECT_URL = '/'  # Después del login, llévalo al Home
+LOGOUT_REDIRECT_URL = '/login/' # Después de cerrar sesión, llévalo al login
+```
+
+Con esto ya tenemos el modulo para iniciar secion
+
+##### Cerrar Sesion
+Para cerrar secion, las versiones modernas de django exigen  que se hagan con los metodos POST, por ello primero aniadimos la ruta de salida
+``` python
+path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+```
+Y cambiamos el enlace simbolico de cerrar secion con un formulario:
+``` python 
+<form action="{% url 'logout' %}" method="post" class="d-inline">
+    {% csrf_token %}
+    <button type="submit" class="nav-link text-danger border-0 bg-transparent">Cerrar Sesión</button>
+</form>
+```

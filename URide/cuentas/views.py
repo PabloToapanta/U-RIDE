@@ -7,7 +7,10 @@ from django.urls import reverse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
-from .models import Usuario # Asegúrate de importar tu modelo
+from .models import Usuario 
+# Importacion para la actualizacion de perfil de un login requerido
+from django.contrib.auth.decorators import login_required
+from .forms import PerfilEstudianteForm
 
 def registro(request):
     #Cuando el usuario envie los datos del formulario
@@ -63,3 +66,18 @@ def activar_cuenta(request, uidb64, token):
     else:
         messages.error(request, 'El enlace de activación es inválido o ya ha expirado.')
         return redirect('registro')
+    
+@login_required 
+def perfil(request):
+    if request.method == 'POST':
+        # instance=request.user es la clave para EDITAR y no crear uno nuevo
+        form = PerfilEstudianteForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '¡tu perfil ha sido actualizado con exito')
+            return redirect('perfil')
+    else:
+        # Si es GET, cargamos el formulario con los datos actuales del estudiante
+        form = PerfilEstudianteForm(instance=request.user)
+    
+    return render(request, 'perfil.html', {'form': form})

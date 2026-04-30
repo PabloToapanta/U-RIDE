@@ -27,6 +27,7 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('registro/', cuentas_views.registro, name='registro'),
     path('activar/<uidb64>/<token>/', cuentas_views.activar_cuenta, name='activar'),
+    path('perfil/', cuentas_views.perfil, name='perfil'),
 ]
 
 if settings.DEBUG:
