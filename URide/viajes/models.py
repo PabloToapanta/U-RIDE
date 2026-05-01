@@ -19,7 +19,7 @@ class Viaje(models.Model):
         NO_INICIADO="NO_INICIADO",'No iniciado'
         EN_CURSO='EN_CURSO','En curso'
         FINALIZADO='FINALIZADO','Finalizado'
-        CANCELADO='FINALIZADO','Cancelado'
+        CANCELADO='CANCELADO','Cancelado'
     estado_viaje=models.CharField(max_length=20,choices=EstadoViaje.choices,default=EstadoViaje.NO_INICIADO)
     auto=models.ForeignKey(Vehiculo,on_delete=models.CASCADE)
     zona_origen=models.CharField( max_length=50)
