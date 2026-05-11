@@ -38,4 +38,4 @@ def registrar_vehiculo(request):
     else:
         form = VehiculoForm()
     
-    return render(request, 'vehiculos/registrar_vehiculo.html', {'form': form})
+    return render(request, 'registrar_vehiculo.html', {'form': form})

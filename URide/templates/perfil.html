@@ -1,29 +1,66 @@
-{% extends 'base.html' %}
-
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-body">
-                <h2 class="text-center mb-4">Mi Perfil Estudiantil</h2>
-                
-                {% if user.foto %}
-                    <div class="text-center mb-4">
-                        <img src="{{ user.foto.url }}" alt="Foto de {{ user.first_name }}" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
-                    </div>
-                {% endif %}
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-body">
+        <h2 class="text-center mb-4">Mi Perfil Estudiantil</h2>
 
-                <form method="post" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    
-                    <div class="row">
-                        {{ form.as_p }}
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 mt-3">Guardar Cambios</button>
-                </form>
-            </div>
+        {% if user.foto %}
+        <div class="text-center mb-4">
+          <img
+            src="{{ user.foto.url }}"
+            alt="Foto de {{ user.first_name }}"
+            class="rounded-circle"
+            style="width: 150px; height: 150px; object-fit: cover"
+          />
         </div>
+        {% endif %} 
+        
+
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="row">{{ form.as_p }}</div>
+
+          <button type="submit" class="btn btn-primary w-100 mt-3">
+            Guardar Cambios
+          </button>
+        </form>
+        {% if user.vehiculo %}
+
+        <!-- Si la tiene, pintamos una Tarjeta (Card) de Bootstrap con sus datos -->
+        <div class="card shadow border-dark mt-4">
+          <div class="card-header bg-dark text-white">
+            Datos de mi Vehiculo
+          </div>
+          <div class="card-body">
+            
+            <p>
+              <strong>Marca</strong> {{ user.vehiculo.marca }}
+            </p>
+            <p><strong>Modelo:</strong> {{ user.vehiculo.modelo }}</p>
+            <p><strong>Anio:</strong> {{ user.vehiculo.anio }}</p>
+            <p><strong>Color:</strong> {{ user.vehiculo.color}}</p>
+            <p><strong>Placa:</strong> {{ user.vehiculo.placa }}</p>
+            <p><strong>Capacidad Maxima:</strong> {{ user.vehiculo.max_capacidad }}</p>
+          </div>
+        </div>
+
+        {% else %}
+
+        <!-- Si NO la tiene, mostramos un mensaje y un botón -->
+        <div class="alert alert-warning mt-4">
+          Aún no eres Conductor
+          <br />
+          <!-- 2. Usamos el tag 'url' para generar el link seguro -->
+          <a href="{% url 'registro_vehiculo' %}" class="btn btn-primary mt-2">
+            Aniadir Vehiculo
+          </a>
+        </div>
+
+        {% endif %}
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
