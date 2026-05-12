@@ -1,0 +1,22 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 fw-bold">Bienvenido a U-Ride</h1>
+        <p class="lead text-muted">
+            La plataforma de viajes compartidos exclusiva para estudiantes de la
+            UTA.
+        </p>
+
+        {% if not user.is_authenticated %}
+        <hr class="my-4" />
+        <p>Únete a nuestra comunidad para viajar seguro y ahorrar gastos.</p>
+        <a
+            class="btn btn-primary btn-lg mt-3"
+            href="{% url 'registro' %}"
+            role="button"
+            >Comenzar ahora</a
+        >
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

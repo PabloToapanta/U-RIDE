@@ -14,21 +14,57 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path,include
+
+from cuentas import views as cuentas_views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from cuentas import views as cuentas_views
+from django.urls import include, path
+from viajes.views import home
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('login/',auth_views.LoginView.as_view(template_name='login.html'),name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('registro/', cuentas_views.registro, name='registro'),
-    path('activar/<uidb64>/<token>/', cuentas_views.activar_cuenta, name='activar'),
-    path('perfil/', cuentas_views.perfil, name='perfil'),
-    path('vehiculos/',include('viajes.urls')), #Url de vehiculos
+    path("admin/", admin.site.urls),
+    path(
+        "login/", auth_views.LoginView.as_view(template_name="login.html"), name="login"
+    ),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("registro/", cuentas_views.registro, name="registro"),
+    path("activar/<uidb64>/<token>/", cuentas_views.activar_cuenta, name="activar"),
+    path("perfil/", cuentas_views.perfil, name="perfil"),
+    path("vehiculos/", include("viajes.urls")),  # Url de vehiculos
+    path("", home, name="home"),
+    # RECUPERACION DE CONTRASENIA
+    # 1. Pantalla para ingresar el correo
+    path(
+        "reset_password/",
+        auth_views.PasswordResetView.as_view(template_name="password_reset.html"),
+        name="reset_password",
+    ),
+    # 2. Pantalla de "Correo enviado"
+    path(
+        "reset_password_sent/",
+        auth_views.PasswordResetDoneView.as_view(
+            template_name="password_reset_sent.html"
+        ),
+        name="password_reset_done",
+    ),
+    # 3. Pantalla para ingresar la nueva contraseña (el link del correo)
+    path(
+        "reset/<uidb64>/<token>/",
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name="password_reset_confirm.html"
+        ),
+        name="password_reset_confirm",
+    ),
+    # 4. Pantalla de "Contraseña cambiada con éxito"
+    path(
+        "reset_password_complete/",
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name="password_reset_done.html"
+        ),
+        name="password_reset_complete",
+    ),
 ]
 
 if settings.DEBUG:
