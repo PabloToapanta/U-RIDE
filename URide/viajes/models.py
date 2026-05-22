@@ -17,27 +17,70 @@ class Vehiculo(models.Model):
 
 class Viaje(models.Model):
     class EstadoViaje(models.TextChoices):
-        NO_INICIADO="NO_INICIADO",'No iniciado'
-        EN_CURSO='EN_CURSO','En curso'
-        FINALIZADO='FINALIZADO','Finalizado'
-        CANCELADO='CANCELADO','Cancelado'
-    estado_viaje=models.CharField(max_length=20,choices=EstadoViaje.choices,default=EstadoViaje.NO_INICIADO)
-    auto=models.ForeignKey(Vehiculo,on_delete=models.CASCADE)
-    zona_origen=models.CharField( max_length=50)
-    zona_destino=models.CharField( max_length=50)
-    fecha_hora_salida=models.DateTimeField(verbose_name="Fecha y hora de salida",help_text="Formato: DD/MM/YYYY HH:MM")
-    asientos_disponibles=models.PositiveSmallIntegerField(validators=[MinValueValidator(2),MaxValueValidator(6)])
-    def clean(self):
-            super().clean() # Llama a la validación básica de Django
+        NO_INICIADO = "NO_INICIADO", 'No iniciado'
+        EN_CURSO = 'EN_CURSO', 'En curso'
+        FINALIZADO = 'FINALIZADO', 'Finalizado'
+        CANCELADO = 'CANCELADO', 'Cancelado'
+        
+    estado_viaje = models.CharField(
+        max_length=20,
+        choices=EstadoViaje.choices,
+        default=EstadoViaje.NO_INICIADO
+    )
+    auto = models.ForeignKey(Vehiculo, on_delete=models.CASCADE)
+    zona_origen = models.CharField(max_length=50)
+    zona_destino = models.CharField(max_length=50)
+    fecha_hora_salida = models.DateTimeField(
+        verbose_name="Fecha y hora de salida",
+        help_text="Formato: DD/MM/YYYY HH:MM"
+    )
+    
+    # Ajustamos el validador mínimo a 1
+    asientos_disponibles = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(6)]
+    )
+    
 
-            # 1. Validar que el auto exista antes de comprobar su capacidad
-            # (Esto evita errores si alguien intenta validar un viaje sin haber asignado un auto)
-            if hasattr(self, 'auto') and self.auto is not None:
-                # 2. La Validación Cruzada: Asientos del viaje vs Capacidad del Auto
-                if self.asientos_disponibles > self.auto.max_capacidad:
-                    raise ValidationError({
-                        'asientos_disponibles': f'El vehículo ({self.auto.placa}) solo tiene capacidad para {self.auto.max_capacidad} pasajeros. No puedes ofrecer {self.asientos_disponibles}.'
-                    })
+    # ¡Eliminamos el def clean() porque ahora el ViajeForm se encarga de esa seguridad
 
     def __str__(self):
         return f"Viaje {self.id} - {self.zona_origen} -> {self.zona_destino} - {self.fecha_hora_salida}"
+
+# viajes/models.py (Añade esto al final del archivo)
+
+class Solicitud(models.Model):
+    # Definimos el ENUM de estados que tenías en tu DBML
+    class EstadoSolicitud(models.TextChoices):
+        EN_ESPERA = 'EN_ESPERA', 'En espera'
+        CANCELADA = 'CANCELADA', 'Cancelada' # Si el pasajero se arrepiente
+        APROBADA = 'APROBADA', 'Aprobada'
+        RECHAZADA = 'RECHAZADA', 'Rechazada' # Añadí este para que el conductor pueda decir "No"
+
+    # Relaciones (Foreign Keys)
+    viaje = models.ForeignKey(
+        Viaje, 
+        on_delete=models.CASCADE, 
+        related_name='solicitudes'
+    )
+    pasajero = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='solicitudes_enviadas'
+    )
+    
+    # Atributos
+    estado_solicitud = models.CharField(
+        max_length=20,
+        choices=EstadoSolicitud.choices,
+        default=EstadoSolicitud.EN_ESPERA
+    )
+    # auto_now_add=True captura la fecha y hora exacta en la que se crea el registro
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # ¡Magia de Ingeniería! Esta regla de la base de datos garantiza que 
+        # un pasajero NO pueda enviar más de una solicitud al mismo viaje.
+        unique_together = ('viaje', 'pasajero')
+
+    def __str__(self):
+        return f"Solicitud: {self.pasajero.email} -> Viaje {self.viaje.id} ({self.estado_solicitud})"

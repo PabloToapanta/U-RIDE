@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from .forms import VehiculoForm,ViajeForm
 from .models import Vehiculo,Viaje
@@ -49,7 +50,20 @@ def registrar_vehiculo(request):
 
 
 def home(request):
-    return render(request, "home.html")
+    # 2. Obtenemos la fecha y hora exacta de este mismo instante
+    ahora = timezone.now()
+    
+    # 3. Añadimos el filtro fecha_hora_salida__gte (Greater Than or Equal -> Mayor o igual que)
+    viajes_disponibles = Viaje.objects.filter(
+        asientos_disponibles__gt=0,
+        fecha_hora_salida__gte=ahora  # <--- LA NUEVA REGLA DE TIEMPO
+    ).order_by('fecha_hora_salida')
+    
+    contexto = {
+        'viajes': viajes_disponibles
+    }
+    
+    return render(request, 'home.html', contexto)
 
 @login_required
 def crear_viaje(request):
@@ -58,7 +72,7 @@ def crear_viaje(request):
         return redirect("home")
     
     if request.method == 'POST':
-        form=ViajeForm(request.POST)
+        form = ViajeForm(request.POST, usuario=request.user)
         if form.is_valid():
             nuevo_viaje=form.save(commit=False)
             nuevo_viaje.auto=request.user.vehiculo
@@ -69,6 +83,6 @@ def crear_viaje(request):
             messages.success(request,'Viaje creado con exito')
             return redirect('home')
     else:
-        form=ViajeForm()
+        form = ViajeForm(usuario=request.user)
     
     return render(request,'crear_viaje.html',{'form':form})

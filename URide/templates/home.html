@@ -1,22 +1,64 @@
-{% extends 'base.html' %} {% block content %}
-<div class="row justify-content-center mt-5">
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="row justify-content-center mt-4">
     <div class="col-md-8 text-center">
         <h1 class="display-4 fw-bold">Bienvenido a U-Ride</h1>
         <p class="lead text-muted">
-            La plataforma de viajes compartidos exclusiva para estudiantes de la
-            UTA.
+            La plataforma de viajes compartidos exclusiva para estudiantes de la UTA.
         </p>
 
         {% if not user.is_authenticated %}
         <hr class="my-4" />
         <p>Únete a nuestra comunidad para viajar seguro y ahorrar gastos.</p>
-        <a
-            class="btn btn-primary btn-lg mt-3"
-            href="{% url 'registro' %}"
-            role="button"
-            >Comenzar ahora</a
-        >
+        <a class="btn btn-primary btn-lg mt-3" href="{% url 'registro' %}" role="button">Comenzar ahora</a>
         {% endif %}
     </div>
+</div>
+
+<div class="row mt-5">
+    <h3 class="mb-4 text-secondary border-bottom pb-2">Próximos Viajes</h3>
+    
+    {% if viajes %}
+        
+        {% for viaje in viajes %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card shadow-sm h-100 border-0 bg-light">
+                <div class="card-body">
+                    <h5 class="card-title text-primary fw-bold">
+                         {{ viaje.zona_origen }} <br> 
+                        <small class="text-muted">➔ {{ viaje.zona_destino }}</small>
+                    </h5>
+                    
+                    <hr>
+                    
+                    <p class="card-text mb-1">
+                        <strong> Salida:</strong> {{ viaje.fecha_hora_salida|date:"d M Y, h:i A" }}
+                    </p>
+                    <p class="card-text mb-1">
+                        <strong> Asientos libres:</strong> 
+                        <span class="badge bg-success">{{ viaje.asientos_disponibles }}</span>
+                    </p>
+                    <p class="card-text text-muted small mt-3">
+                        <strong> Conductor:</strong> {{ viaje.auto.duenio.get_full_name|default:viaje.auto.duenio.email }}
+                    </p>
+                </div>
+                
+                <div class="card-footer bg-white border-0 text-center pb-3">
+                    <a href="#" class="btn btn-outline-primary w-100 fw-bold">Unirse al Viaje</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+    {% else %}
+        <div class="col-12 text-center text-muted mt-4">
+            <h4 class="fw-light">No hay viajes publicados en este momento.</h4>
+            {% if user.is_authenticated and user.es_conductor %}
+                <p>¡Sé el primero en publicar una ruta para tus compañeros!</p>
+                <a href="{% url 'registro_viaje' %}" class="btn btn-success mt-2">Publicar Viaje</a>
+            {% endif %}
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

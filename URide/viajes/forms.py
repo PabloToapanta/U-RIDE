@@ -60,3 +60,21 @@ class ViajeForm(forms.ModelForm):
                 'max': 6
             }),
         }
+    # 1. Interceptamos la creación del formulario para recibir al usuario
+    def __init__(self, *args, **kwargs):
+        self.usuario = kwargs.pop('usuario', None) # Extraemos el usuario
+        super().__init__(*args, **kwargs)
+
+    # 2. Validación exclusiva para este campo
+    def clean_asientos_disponibles(self):
+        asientos = self.cleaned_data.get('asientos_disponibles')
+        
+        # Revisamos la capacidad del auto del usuario que recibimos
+        if self.usuario and hasattr(self.usuario, 'vehiculo'):
+            capacidad_maxima = self.usuario.vehiculo.max_capacidad
+            
+            if asientos > capacidad_maxima:
+                # Esto es lo que hará que el texto rojo aparezca en HTML
+                raise forms.ValidationError(f"Error: Tu vehículo (placa {self.usuario.vehiculo.placa}) solo tiene capacidad para {capacidad_maxima} pasajeros.")
+                
+        return asientos

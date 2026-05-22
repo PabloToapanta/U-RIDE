@@ -49,21 +49,43 @@
                                 >
                             </span>
                         </li>
-                        <li class="nav-item">
-                            <form
-                                action="{% url 'logout' %}"
-                                method="post"
-                                class="d-inline"
-                            >
-                                {% csrf_token %}
-                                <button
-                                    type="submit"
-                                    class="nav-link text-danger border-0 bg-transparent"
-                                >
-                                    Cerrar Sesión
-                                </button>
-                            </form>
-                        </li>
+                        
+                        {% if user.is_authenticated %}
+    
+    {% if user.es_conductor %}
+        <li class="nav-item">
+            <a class="nav-link text-success fw-bold" href="{% url 'registro_viaje' %}">
+                Publicar Viaje
+            </a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link text-primary" href="{% url 'registro_vehiculo' %}">
+                Volverme Conductor
+            </a>
+        </li>
+    {% endif %}
+
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'perfil' %}">Mi Perfil</a>
+    </li>
+    <li class="nav-item">
+        <form action="{% url 'logout' %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="nav-link text-danger border-0 bg-transparent">Cerrar Sesión</button>
+        </form>
+    </li>
+
+{% else %}
+    
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'registro' %}">Registrarse</a>
+    </li>
+
+{% endif %}
 
                         {% else %}
 

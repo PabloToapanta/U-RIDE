@@ -35,7 +35,7 @@ urlpatterns = [
     path("registro/", cuentas_views.registro, name="registro"),
     path("activar/<uidb64>/<token>/", cuentas_views.activar_cuenta, name="activar"),
     path("perfil/", cuentas_views.perfil, name="perfil"),
-    path("vehiculos/", include("viajes.urls")),  # Url de vehiculos
+    path("viajes/", include("viajes.urls")),  # Url de vehiculos
     path("", home, name="home"),
     # RECUPERACION DE CONTRASENIA
     # 1. Pantalla para ingresar el correo
