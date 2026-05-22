@@ -15,7 +15,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+# Trae todas las funciones de vista(registro, activar_cuenta,etc) y se le asigna un alias de "cuentas_views"
 from cuentas import views as cuentas_views
+
+# Importa el archivo settings.py para poder leer las variables DEBUG,MEDIA_URL,MEDIA_ROOT,etc
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin

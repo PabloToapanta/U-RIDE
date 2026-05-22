@@ -1,12 +1,13 @@
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Vehiculo(models.Model):
     #Relacion uno a uno
-    duenio=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)  
-    # En settings AUTH_USER_MODEL='cuentas.Usuario'  
+    duenio=models.OneToOneField(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
+    # En settings AUTH_USER_MODEL='cuentas.Usuario'
     marca=models.CharField(max_length=50)
     modelo=models.CharField( max_length=50)
     anio=models.PositiveSmallIntegerField(validators=[MinValueValidator(1800),MaxValueValidator(3000)])
@@ -26,5 +27,17 @@ class Viaje(models.Model):
     zona_destino=models.CharField( max_length=50)
     fecha_hora_salida=models.DateTimeField(verbose_name="Fecha y hora de salida",help_text="Formato: DD/MM/YYYY HH:MM")
     asientos_disponibles=models.PositiveSmallIntegerField(validators=[MinValueValidator(2),MaxValueValidator(6)])
+    def clean(self):
+            super().clean() # Llama a la validación básica de Django
+
+            # 1. Validar que el auto exista antes de comprobar su capacidad
+            # (Esto evita errores si alguien intenta validar un viaje sin haber asignado un auto)
+            if hasattr(self, 'auto') and self.auto is not None:
+                # 2. La Validación Cruzada: Asientos del viaje vs Capacidad del Auto
+                if self.asientos_disponibles > self.auto.max_capacidad:
+                    raise ValidationError({
+                        'asientos_disponibles': f'El vehículo ({self.auto.placa}) solo tiene capacidad para {self.auto.max_capacidad} pasajeros. No puedes ofrecer {self.asientos_disponibles}.'
+                    })
+
     def __str__(self):
         return f"Viaje {self.id} - {self.zona_origen} -> {self.zona_destino} - {self.fecha_hora_salida}"

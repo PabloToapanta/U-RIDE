@@ -30,7 +30,8 @@ SECRET_KEY = "django-insecure-*==a5yv#&l*^xoh(vr#kv_px4la7*vqr=e0q*4786x+2lcq3ya
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+
+ALLOWED_HOSTS = ["10.79.19.141", "localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -85,7 +86,7 @@ DATABASES = {
         "NAME": "uride_db",
         "USER": "uride_admin",
         "PASSWORD": os.getenv("PASSWORD"),
-        "HOST": "localhost",  
+        "HOST": "localhost",
         "PORT": "5432",  # El puerto por defecto de Postgres
     }
 }
@@ -113,7 +114,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "es"
 
 TIME_ZONE = "UTC"
 
@@ -127,36 +128,35 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
-# 1. MEDIA_URL: Es el link público. Si alguien quiere ver la foto, la URL empezará así.
+# 1. MEDIA_URL: Es la URL con la que los navegadores solicitaran las paginas
 MEDIA_URL = "/media/"
 
-# 2. MEDIA_ROOT: Es la ruta física real
-# Le dice: "Crea una carpeta llamada 'media' justo al lado del archivo manage.py"
+# 2. MEDIA_ROOT: Es la ruta física real en la computadora
 MEDIA_ROOT = BASE_DIR / "media"
 
-AUTH_USER_MODEL = "cuentas.Usuario"  # Nuevo modelo de autenticacion
+#
 
-# URide/settings.py
+AUTH_USER_MODEL = "cuentas.Usuario"  # Django usara nuestro modelo de Usuario creado por nosotros y no el
+# que viene por defecto
+
+
 LOGIN_REDIRECT_URL = "/"  # Después del login, llévalo al Home
 LOGOUT_REDIRECT_URL = "/login/"  # Después de cerrar sesión, llévalo al login
 
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 # Configuración para enviar correos reales (SMTP)
-# EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-# EMAIL_HOST = "smtp.gmail.com"
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
 
 # El correo desde el cual enviarás los mensajes
-# EMAIL_HOST_USER = "pablotp404@gmail.com"
+EMAIL_HOST_USER = "pablotp404@gmail.com"
 
 # La clave de 16 letras de google
-# EMAIL_HOST_PASSWORD = ""
+EMAIL_HOST_PASSWORD = os.getenv("GOOGLEPASSWORD")
 
 # El nombre que verán los usuarios al recibir el correo
-# DEFAULT_FROM_EMAIL = "U-Ride Admin <pablotp404@gmail.com>"
-
-# Modelo de autenticacion
-AUTH_USER_MODEL = "cuentas.Usuario"
+DEFAULT_FROM_EMAIL = "U-Ride Admin <pablotp404@gmail.com>"
