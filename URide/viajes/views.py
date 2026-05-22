@@ -4,9 +4,10 @@ from cuentas.models import Usuario
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
+from django.core.exceptions import ValidationError
 
-from .forms import VehiculoForm
-from .models import Vehiculo
+from .forms import VehiculoForm,ViajeForm
+from .models import Vehiculo,Viaje
 
 
 @login_required
@@ -49,3 +50,25 @@ def registrar_vehiculo(request):
 
 def home(request):
     return render(request, "home.html")
+
+@login_required
+def crear_viaje(request):
+    if not request.user.es_conductor:
+        messages.error(request, 'Acceso denegado: Debes registrar un vehículo para publicar viajes.')
+        return redirect("home")
+    
+    if request.method == 'POST':
+        form=ViajeForm(request.POST)
+        if form.is_valid():
+            nuevo_viaje=form.save(commit=False)
+            nuevo_viaje.auto=request.user.vehiculo
+            #Aqui no puse el estado viaje porque en el modelo esta como default NO_INICIADO
+
+            nuevo_viaje.save()
+
+            messages.success(request,'Viaje creado con exito')
+            return redirect('home')
+    else:
+        form=ViajeForm()
+    
+    return render(request,'crear_viaje.html',{'form':form})
