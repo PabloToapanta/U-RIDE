@@ -1,0 +1,174 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="row mt-4">
+  <div class="col-12">
+    <h2 class="fw-bold text-secondary mb-1">Panel del Conductor</h2>
+    <p class="text-muted">
+      Administra tus rutas publicadas y gestiona las solicitudes de los pasajeros.
+    </p>
+    <hr class="mb-4" />
+  </div>
+</div>
+
+<div class="row">
+  {% if viajes %} 
+    {% for viaje in viajes %}
+    <div class="col-md-12 mb-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-3">
+          <h5 class="mb-0 fw-bold">
+            {{ viaje.zona_origen }} ➔ {{ viaje.zona_destino }}
+          </h5>
+          <span class="badge bg-primary fs-6">
+            Asientos Libres: {{ viaje.asientos_disponibles }}
+          </span>
+        </div>
+
+        <div class="card-body bg-light">
+          <div class="row text-secondary small mb-3">
+            <div class="col-sm-4">
+              <strong> Fecha y Hora:</strong> {{ viaje.fecha_hora_salida|date:"d M Y, h:i A" }}
+            </div>
+            <div class="col-sm-4">
+              <strong>Vehículo:</strong> {{ viaje.auto.marca }} {{ viaje.auto.modelo }} (Placa: {{ viaje.auto.placa }})
+            </div>
+            <div class="col-sm-4 text-sm-end">
+              <strong>Estado:</strong>
+
+              {% if viaje.estado_viaje == 'NO_INICIADO' %}
+                  
+                  {% if viaje.esta_expirado %}
+                      <span class="badge bg-danger mb-2">Expirado / Olvidado</span>
+                      <form action="{% url 'cambiar_estado_viaje' viaje.id 'CANCELADO' %}" method="post" class="mt-1">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-outline-danger btn-sm fw-bold w-100">Cancelar Viaje</button>
+                      </form>
+                      
+                  {% elif viaje.puede_iniciarse %}
+                      <span class="badge bg-warning text-dark mb-2">Listo para salir</span>
+                      <form action="{% url 'cambiar_estado_viaje' viaje.id 'EN_CURSO' %}" method="post" class="mt-1">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-primary btn-sm fw-bold w-100"> Iniciar Viaje</button>
+                      </form>
+                      
+                  {% else %}
+                      <span class="badge bg-warning text-dark mb-2">Programado</span>
+                      <button class="btn btn-secondary btn-sm fw-bold w-100 mt-1" disabled>
+                          Se activa 15 min antes
+                      </button>
+                  {% endif %}
+
+              {% elif viaje.estado_viaje == 'EN_CURSO' %}
+                  <span class="badge bg-success mb-2"> En curso</span>
+                  <form action="{% url 'cambiar_estado_viaje' viaje.id 'FINALIZADO' %}" method="post" class="mt-1">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger btn-sm fw-bold w-100"> Terminar Viaje</button>
+                  </form>
+
+              {% else %}
+                  <span class="badge bg-secondary">{{ viaje.get_estado_viaje_display }} ✓</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="card border-0 shadow-inner mt-3">
+            <div class="card-body bg-white rounded">
+              
+              <h6 class="fw-bold text-primary mb-3">
+                Solicitudes de Pasajeros Por Aprobar
+              </h6>
+
+              {% if viaje.solicitudes_pendientes %}
+              <div class="list-group">
+                {% for solicitud in viaje.solicitudes_pendientes %}
+                <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                  <div>
+                    <h6 class="mb-1 fw-bold text-dark">
+                      {{ solicitud.pasajero.get_full_name|default:solicitud.pasajero.email }}
+                    </h6>
+
+                    <p class="mb-0 text-muted small">
+                      {{ solicitud.pasajero.email }} 
+                      {% if solicitud.pasajero.carrera %} | Carrera: {{ solicitud.pasajero.carrera }} {% endif %} 
+                      {% if solicitud.pasajero.numero_contacto %} | Contacto: {{ solicitud.pasajero.numero_contacto }} {% endif %}
+                    </p>
+                    <small class="text-muted text-italic">
+                      Solicitado el: {{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}
+                    </small>
+                  </div>
+
+                  <div class="d-flex gap-2">
+                    {% if viaje.esta_expirado or viaje.estado_viaje != 'NO_INICIADO' %}
+                      <span class="text-muted small"><em>Acciones bloqueadas por el estado del viaje.</em></span>
+                    {% else %}
+                      <form action="{% url 'responder_solicitud' solicitud.id 'aceptar' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-sm fw-bold px-3">
+                           Aceptar
+                        </button>
+                      </form>
+
+                      <form action="{% url 'responder_solicitud' solicitud.id 'rechazar' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm fw-bold px-3">
+                           Rechazar
+                        </button>
+                      </form>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              {% else %}
+              <p class="text-muted small mb-0 py-2">
+                <em>Aún no hay solicitudes pendientes para este viaje.</em>
+              </p>
+              {% endif %}
+
+              <h6 class="fw-bold text-success mt-4 mb-3">
+                 Pasajeros Confirmados en el Auto
+              </h6>
+              
+              {% if viaje.pasajeros_confirmados %}
+                <div class="list-group">
+                  {% for pasajero_aprobado in viaje.pasajeros_confirmados %}
+                  <div class="list-group-item list-group-item-success d-flex justify-content-between align-items-center py-2">
+                    <div>
+                      <h6 class="mb-1 fw-bold text-dark">
+                        {{ pasajero_aprobado.pasajero.get_full_name|default:pasajero_aprobado.pasajero.email }}
+                      </h6>
+                      <p class="mb-0 text-dark small">
+                        {% if pasajero_aprobado.pasajero.numero_contacto %}
+                           📱 {{ pasajero_aprobado.pasajero.numero_contacto }}
+                        {% else %}
+                           📧 {{ pasajero_aprobado.pasajero.email }}
+                        {% endif %}
+                        
+                        {% if pasajero_aprobado.pasajero.carrera %}
+                          | 🎓 {{ pasajero_aprobado.pasajero.carrera }}
+                        {% endif %}
+                      </p>
+                    </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="text-muted small mb-0 py-2">
+                  <em>Aún no tienes pasajeros confirmados para este viaje.</em>
+                </p>
+              {% endif %}
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %} 
+  {% else %}
+    <div class="col-12 text-center text-muted py-5">
+      <h4 class="fw-light">No has publicado ningún viaje todavía.</h4>
+      <a href="{% url 'registro_viaje' %}" class="btn btn-primary mt-3">Publicar mi primer viaje</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %} 

@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from datetime import timedelta
+from django.utils import timezone
 
 # Create your models here.
 class Vehiculo(models.Model):
@@ -40,13 +42,24 @@ class Viaje(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(6)]
     )
     
+    @property
+    def puede_iniciarse(self):
+        """Devuelve True solo si estamos en la ventana de tiempo permitida."""
+        ahora = timezone.now()
+        inicio_ventana = self.fecha_hora_salida - timedelta(minutes=15) # 15 min antes
+        fin_ventana = self.fecha_hora_salida + timedelta(minutes=30)    # 30 min después (tolerancia)
+        
+        return inicio_ventana <= ahora <= fin_ventana and self.estado_viaje == self.EstadoViaje.NO_INICIADO
 
-    # ¡Eliminamos el def clean() porque ahora el ViajeForm se encarga de esa seguridad
+    @property
+    def esta_expirado(self):
+        """Expira únicamente cuando se acaba la ventana de tolerancia y no se inició."""
+        fin_ventana = self.fecha_hora_salida + timedelta(minutes=30)
+        return timezone.now() > fin_ventana and self.estado_viaje == self.EstadoViaje.NO_INICIADO
 
     def __str__(self):
         return f"Viaje {self.id} - {self.zona_origen} -> {self.zona_destino} - {self.fecha_hora_salida}"
 
-# viajes/models.py (Añade esto al final del archivo)
 
 class Solicitud(models.Model):
     # Definimos el ENUM de estados que tenías en tu DBML
@@ -78,9 +91,10 @@ class Solicitud(models.Model):
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        # ¡Magia de Ingeniería! Esta regla de la base de datos garantiza que 
+        # Esta regla de la base de datos garantiza que 
         # un pasajero NO pueda enviar más de una solicitud al mismo viaje.
         unique_together = ('viaje', 'pasajero')
 
     def __str__(self):
         return f"Solicitud: {self.pasajero.email} -> Viaje {self.viaje.id} ({self.estado_solicitud})"
+    
