@@ -84,8 +84,10 @@
                 {% for solicitud in viaje.solicitudes_pendientes %}
                 <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
                   <div>
-                    <h6 class="mb-1 fw-bold text-dark">
-                      {{ solicitud.pasajero.get_full_name|default:solicitud.pasajero.email }}
+                    <h6 class="mb-1 fw-bold">
+                      <a href="{% url 'perfil_publico' solicitud.pasajero.id %}" class="text-decoration-none text-primary">
+                        {{ solicitud.pasajero.get_full_name|default:solicitud.pasajero.email }}
+                      </a>
                     </h6>
 
                     <p class="mb-0 text-muted small">
@@ -105,14 +107,14 @@
                       <form action="{% url 'responder_solicitud' solicitud.id 'aceptar' %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-success btn-sm fw-bold px-3">
-                           Aceptar
+                          Aceptar
                         </button>
                       </form>
 
                       <form action="{% url 'responder_solicitud' solicitud.id 'rechazar' %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger btn-sm fw-bold px-3">
-                           Rechazar
+                          Rechazar
                         </button>
                       </form>
                     {% endif %}
@@ -127,7 +129,7 @@
               {% endif %}
 
               <h6 class="fw-bold text-success mt-4 mb-3">
-                 Pasajeros Confirmados en el Auto
+                Pasajeros Confirmados en el Auto
               </h6>
               
               {% if viaje.pasajeros_confirmados %}
@@ -135,22 +137,37 @@
                   {% for pasajero_aprobado in viaje.pasajeros_confirmados %}
                   <div class="list-group-item list-group-item-success d-flex justify-content-between align-items-center py-2">
                     <div>
-                      <h6 class="mb-1 fw-bold text-dark">
-                        {{ pasajero_aprobado.pasajero.get_full_name|default:pasajero_aprobado.pasajero.email }}
+                      <h6 class="mb-1 fw-bold">
+                        <a href="{% url 'perfil_publico' pasajero_aprobado.pasajero.id %}" class="text-decoration-none text-dark text-decoration-underline">
+                          {{ pasajero_aprobado.pasajero.get_full_name|default:pasajero_aprobado.pasajero.email }}
+                        </a>
                       </h6>
                       <p class="mb-0 text-dark small">
                         {% if pasajero_aprobado.pasajero.numero_contacto %}
-                           📱 {{ pasajero_aprobado.pasajero.numero_contacto }}
+                            {{ pasajero_aprobado.pasajero.numero_contacto }}
                         {% else %}
-                           📧 {{ pasajero_aprobado.pasajero.email }}
+                            {{ pasajero_aprobado.pasajero.email }}
                         {% endif %}
                         
                         {% if pasajero_aprobado.pasajero.carrera %}
-                          | 🎓 {{ pasajero_aprobado.pasajero.carrera }}
+                          |  {{ pasajero_aprobado.pasajero.carrera }}
                         {% endif %}
                       </p>
                     </div>
-                    </div>
+                    
+                    {% if viaje.estado_viaje == 'FINALIZADO' %}
+                        <div class="d-flex flex-column gap-2">
+                            <a href="{% url 'calificar_usuario' viaje.id pasajero_aprobado.pasajero.id %}" class="btn btn-warning btn-sm fw-bold shadow-sm text-dark">
+                                ⭐ Calificar Pasajero
+                            </a>
+                            
+                            <a href="{% url 'crear_reporte' viaje.id pasajero_aprobado.pasajero.id %}" class="btn btn-outline-danger btn-sm fw-bold shadow-sm">
+                                 Reportar
+                            </a>
+                        </div>
+                    {% endif %}
+                    
+                  </div>
                   {% endfor %}
                 </div>
               {% else %}
@@ -171,4 +188,4 @@
     </div>
   {% endif %}
 </div>
-{% endblock %} 
+{% endblock %}

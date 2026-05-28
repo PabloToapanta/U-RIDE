@@ -1,0 +1,3 @@
+2026-05-27 22:16:22,544 - [EVENTO: INFO] - [NUEVO VIAJE] El conductor prueba@uta.edu.ec publicó el Viaje #21 de Pruebaloggg a priebaloggg.
+2026-05-27 22:18:01,596 - [EVENTO: INFO] - [SOLICITUD] El pasajero pablo18zzz@uta.edu.ec solicitó unirse al Viaje #21 (Solicitud #11).
+2026-05-27 22:18:24,705 - [EVENTO: INFO] - [PASAJERO ACEPTADO] El conductor prueba@uta.edu.ec ACEPTÓ la Solicitud #11 del pasajero pablo18zzz@uta.edu.ec para el Viaje #21.

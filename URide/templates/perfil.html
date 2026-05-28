@@ -1,7 +1,8 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} 
+{% block content %}
 <div class="row justify-content-center">
   <div class="col-md-8">
-    <div class="card shadow">
+    <div class="card shadow mb-4">
       <div class="card-body">
         <h2 class="text-center mb-4">Mi Perfil Estudiantil</h2>
 
@@ -16,28 +17,17 @@
         </div>
         {% endif %} 
         
-
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
-
           <div class="row">{{ form.as_p }}</div>
-
-          <button type="submit" class="btn btn-primary w-100 mt-3">
-            Guardar Cambios
-          </button>
+          <button type="submit" class="btn btn-primary w-100 mt-3">Guardar Cambios</button>
         </form>
+        
         {% if user.vehiculo %}
-
-        <!-- Si la tiene, pintamos una Tarjeta (Card) de Bootstrap con sus datos -->
         <div class="card shadow border-dark mt-4">
-          <div class="card-header bg-dark text-white">
-            Datos de mi Vehiculo
-          </div>
+          <div class="card-header bg-dark text-white">Datos de mi Vehiculo</div>
           <div class="card-body">
-            
-            <p>
-              <strong>Marca</strong> {{ user.vehiculo.marca }}
-            </p>
+            <p><strong>Marca:</strong> {{ user.vehiculo.marca }}</p>
             <p><strong>Modelo:</strong> {{ user.vehiculo.modelo }}</p>
             <p><strong>Anio:</strong> {{ user.vehiculo.anio }}</p>
             <p><strong>Color:</strong> {{ user.vehiculo.color}}</p>
@@ -45,22 +35,43 @@
             <p><strong>Capacidad Maxima:</strong> {{ user.vehiculo.max_capacidad }}</p>
           </div>
         </div>
-
         {% else %}
-
-        <!-- Si NO la tiene, mostramos un mensaje y un botón -->
         <div class="alert alert-warning mt-4">
-          Aún no eres Conductor
-          <br />
-          <!-- 2. Usamos el tag 'url' para generar el link seguro -->
-          <a href="{% url 'registro_vehiculo' %}" class="btn btn-primary mt-2">
-            Aniadir Vehiculo
-          </a>
+          Aún no eres Conductor<br />
+          <a href="{% url 'registro_vehiculo' %}" class="btn btn-primary mt-2">Añadir Vehiculo</a>
         </div>
-
         {% endif %}
       </div>
     </div>
+
+    <h4 class="fw-bold text-secondary mb-3">Mis Reseñas Recibidas</h4>
+    <div class="list-group shadow-sm mb-5">
+        {% for resenia in resenias %}
+        <div class="list-group-item py-3">
+            <div class="d-flex w-100 justify-content-between mb-1">
+                <h6 class="mb-0 fw-bold text-dark">Evaluado por: {{ resenia.evaluador.get_full_name|default:resenia.evaluador.email }}</h6>
+                <small class="text-muted">{{ resenia.fecha|date:"d M Y" }}</small>
+            </div>
+            <div class="mb-2 text-warning fw-bold">
+                {% for _ in "12345"|make_list %}
+                    {% if forloop.counter <= resenia.calificacion %}⭐{% else %}☆{% endif %}
+                {% endfor %}
+            </div>
+            <p class="mb-0 small text-secondary">
+                {% if resenia.resenia %}
+                    "{{ resenia.resenia }}"
+                {% else %}
+                    <em>Sin comentarios adicionales.</em>
+                {% endif %}
+            </p>
+        </div>
+        {% empty %}
+        <div class="list-group-item text-center py-4 text-muted">
+            Aún no tienes reseñas.
+        </div>
+        {% endfor %}
+    </div>
+
   </div>
 </div>
 {% endblock %}

@@ -9,7 +9,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth import get_user_model
 from .forms import PerfilEstudianteForm, RegistroEstudianteForm
 from .models import Usuario
 
@@ -92,4 +93,25 @@ def perfil(request):
         # Si es GET, cargamos el formulario con los datos actuales del estudiante
         form = PerfilEstudianteForm(instance=request.user)
 
-    return render(request, "perfil.html", {"form": form})
+    resenias = request.user.evaluaciones_recibidas.all().order_by('-fecha')
+    
+    contexto = {
+        'form': form, # el form que ya tenías
+        'resenias': resenias
+    }
+    return render(request, 'perfil.html', contexto)
+
+Usuario = get_user_model()
+
+def perfil_publico(request, usuario_id):
+    # Buscamos al usuario por su ID
+    perfil_usuario = get_object_or_404(Usuario, id=usuario_id)
+    
+    # Extraemos las reseñas donde él es el 'evaluado', ordenadas de la más reciente a la más antigua
+    resenias = perfil_usuario.evaluaciones_recibidas.all().order_by('-fecha')
+    
+    contexto = {
+        'perfil_usuario': perfil_usuario,
+        'resenias': resenias
+    }
+    return render(request, 'perfil_publico.html', contexto)

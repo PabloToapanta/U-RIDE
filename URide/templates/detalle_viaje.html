@@ -1,66 +1,90 @@
-{% extends 'base.html' %}
+    {% extends 'base.html' %}
 
-{% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-8">
-        <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm mb-3">
-             Volver a todos los viajes
-        </a>
+    {% block content %}
+    <div class="row justify-content-center mt-4">
+        <div class="col-md-8">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary btn-sm mb-3">
+                Volver a todos los viajes
+            </a>
 
-        <div class="card shadow border-0">
-            <div class="card-header bg-primary text-white py-3 text-center">
-                <h3 class="mb-0 fw-bold">{{ viaje.zona_origen }} ➔ {{ viaje.zona_destino }}</h3>
-            </div>
-            
-            <div class="card-body p-4">
-                <h5 class="text-secondary border-bottom pb-2 mb-3">Detalles de la Salida</h5>
-                <div class="row mb-4">
-                    <div class="col-sm-6">
-                        <p class="mb-1"><strong> Fecha:</strong> {{ viaje.fecha_hora_salida|date:"l, d \d\e F \d\e Y" }}</p>
-                        <p class="mb-1"><strong> Hora:</strong> {{ viaje.fecha_hora_salida|date:"h:i A" }}</p>
-                    </div>
-                    <div class="col-sm-6 text-sm-end">
-                        <h4 class="text-success fw-bold mb-0">{{ viaje.asientos_disponibles }}</h4>
-                        <span class="text-muted small">Asientos disponibles</span>
-                    </div>
+            <div class="card shadow border-0">
+                <div class="card-header bg-primary text-white py-3 text-center">
+                    <h3 class="mb-0 fw-bold">{{ viaje.zona_origen }} ➔ {{ viaje.zona_destino }}</h3>
                 </div>
-
-                <h5 class="text-secondary border-bottom pb-2 mb-3">Conductor y Vehículo</h5>
-                <div class="row mb-4">
-                    <div class="col-sm-6">
-                        <p class="mb-1"><strong> Conductor:</strong> {{ viaje.auto.duenio.get_full_name|default:viaje.auto.duenio.email }}</p>
-                        <p class="mb-1"><strong> Carrera:</strong> {{ viaje.auto.duenio.carrera|default:"No especificada" }}</p>
-                    </div>
-                    <div class="col-sm-6">
-                        <p class="mb-1"><strong> Auto:</strong> {{ viaje.auto.marca }} {{ viaje.auto.modelo }} ({{ viaje.auto.color }})</p>
-                        <p class="mb-1"><strong> Placa:</strong> {{ viaje.auto.placa }}</p>
-                    </div>
-                </div>
-
-                <div class="text-center mt-5">
-                    {% if request.user == viaje.auto.duenio %}
-                        <div class="alert alert-info"> Este es tu viaje publicado.</div>
-                    {% elif viaje.esta_expirado or viaje.estado_viaje != 'NO_INICIADO' %}
-                        <div class="alert alert-secondary">Este viaje ya no admite nuevas solicitudes.</div>
-                    {% elif solicitud_previa %}
-                        <div class="alert alert-warning">
-                            Ya enviaste una solicitud para este viaje. 
-                            Estado: <strong>{{ solicitud_previa.get_estado_solicitud_display }}</strong>
+                
+                <div class="card-body p-4">
+                    <h5 class="text-secondary border-bottom pb-2 mb-3">Detalles de la Salida</h5>
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="mb-1"><strong> Fecha:</strong> {{ viaje.fecha_hora_salida|date:"l, d \d\e F \d\e Y" }}</p>
+                            <p class="mb-1"><strong> Hora:</strong> {{ viaje.fecha_hora_salida|date:"h:i A" }}</p>
                         </div>
-                    {% elif viaje.asientos_disponibles <= 0 %}
-                        <div class="alert alert-danger">Este viaje está lleno.</div>
-                    {% else %}
+                        <div class="col-sm-6 text-sm-end">
+                            <h4 class="text-success fw-bold mb-0">{{ viaje.asientos_disponibles }}</h4>
+                            <span class="text-muted small">Asientos disponibles</span>
+                        </div>
+                    </div>
+
+                    <h5 class="text-secondary border-bottom pb-2 mb-3">Conductor y Vehículo</h5>
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="mb-1"><strong> Conductor:</strong><a href="{% url perfil_publico viaje.auto.duenio.id }" class="text-decoration-none fw-bold text-primary"> {{ viaje.auto.duenio.get_full_name|default:viaje.auto.duenio.email }} <a></p>
+                            
+                            <p class="mb-1 text-warning fw-bold">
+                                ⭐ {{ viaje.auto.duenio.promedio_calificacion }} 
+                                <span class="text-muted small fw-normal">({{ viaje.auto.duenio.total_evaluaciones }} reseñas)</span>
+                            </p>
+                            
+                            <p class="mb-1"><strong> Carrera:</strong> {{ viaje.auto.duenio.carrera|default:"No especificada" }}</p>
+                        </div>
+                        
+                        <div class="col-sm-6">
+                            <p class="mb-1"><strong> Auto:</strong> {{ viaje.auto.marca }} {{ viaje.auto.modelo }}</p>
+                            <p class="mb-1"><strong> Placa:</strong> {{ viaje.auto.placa }}</p>
+                        </div>
+                    </div> <div class="text-center mt-5">
+                        {% if request.user == viaje.auto.duenio %}
+                            <div class="alert alert-info"> Este es tu viaje publicado.</div>
+                        {% elif viaje.esta_expirado or viaje.estado_viaje != 'NO_INICIADO' %}
+                            <div class="alert alert-secondary">Este viaje ya no admite nuevas solicitudes.</div>
+                        {% elif solicitud_previa %}
+                            <div class="alert alert-warning">
+                                Ya enviaste una solicitud para este viaje. 
+                                Estado: <strong>{{ solicitud_previa.get_estado_solicitud_display }}</strong>
+                            </div>
+                        {% elif viaje.asientos_disponibles <= 0 %}
+                            <div class="alert alert-danger">Este viaje está lleno.</div>
+                        {% else %}
                         <form action="{% url 'solicitar_viaje' viaje.id %}" method="post">
                             {% csrf_token %}
+                            
+                            <div class="alert alert-info text-start shadow-sm border-info mt-4 mb-4">
+                                <h6 class="alert-heading fw-bold text-info">
+                                     Lineamientos de Seguridad U-Ride
+                                </h6>
+                                <hr class="my-2 text-info">
+                                <ul class="small text-dark mb-3">
+                                    <li class="mb-1"><strong>Verifica los datos:</strong> Confirma que la placa y el auto coincidan con el perfil antes de abordar.</li>
+                                    <li class="mb-1"><strong>Puntualidad:</strong> Llega al punto de encuentro 5 minutos antes. El conductor no está obligado a esperarte.</li>
+                                    <li class="mb-1"><strong>Comunidad de respeto:</strong> Cualquier conducta indebida puede y debe ser reportada para tu protección.</li>
+                                </ul>
+                                
+                                <div class="form-check bg-white p-2 rounded border border-info">
+                                    <input class="form-check-input ms-1" type="checkbox" id="aceptoReglas" required>
+                                    <label class="form-check-label small fw-bold ms-2 text-dark" for="aceptoReglas" style="cursor: pointer;">
+                                        He leído y me comprometo a cumplir las reglas de seguridad.
+                                    </label>
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-success btn-lg px-5 fw-bold shadow-sm">
-                                 Solicitar Unirse al Viaje
+                                Solicitar Unirse al Viaje
                             </button>
                         </form>
                     {% endif %}
-                </div>
+                    </div>
 
+                </div>
             </div>
         </div>
     </div>
-</div>
-{% endblock %}
+    {% endblock %}

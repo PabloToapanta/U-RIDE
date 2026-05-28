@@ -25,6 +25,8 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.urls import include, path
 from viajes.views import home
+from comunidad import views as comunidad_views
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -68,6 +70,9 @@ urlpatterns = [
         ),
         name="password_reset_complete",
     ),
+    path('calificar/viaje/<int:viaje_id>/usuario/<int:evaluado_id>/', comunidad_views.calificar_usuario, name='calificar_usuario'),
+    path('cuentas/', include('cuentas.urls')),
+    path('reportar/viaje/<int:viaje_id>/usuario/<int:reportado_id>/', comunidad_views.crear_reporte, name='crear_reporte'),
 ]
 
 if settings.DEBUG:

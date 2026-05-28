@@ -45,13 +45,16 @@
                     <p class="card-text mb-1 small">
                         <strong> Placa:</strong> {{ solicitud.viaje.auto.placa }}
                     </p>
-                    <p class="card-text mb-1 small">
-                        <strong> Conductor:</strong> {{ solicitud.viaje.auto.duenio.get_full_name|default:solicitud.viaje.auto.duenio.email }}
-                    </p>
                     
+                    <p class="card-text mb-1 small">
+                        <strong> Conductor:</strong> 
+                        <a href="{% url 'perfil_publico' solicitud.viaje.auto.duenio.id %}" class="text-decoration-none fw-bold text-primary">
+                            {{ solicitud.viaje.auto.duenio.get_full_name|default:solicitud.viaje.auto.duenio.email }}
+                        </a>
+                    </p>
                     {% if solicitud.viaje.auto.duenio.numero_contacto and solicitud.estado_solicitud == 'APROBADA' %}
                         <p class="card-text mt-2 small text-success fw-bold">
-                            📱 Contacto: {{ solicitud.viaje.auto.duenio.numero_contacto }}
+                         Contacto: {{ solicitud.viaje.auto.duenio.numero_contacto }}
                         </p>
                     {% endif %}
 
@@ -61,7 +64,7 @@
                                 {% csrf_token %}
                                 <button type="submit" class="btn btn-outline-danger btn-sm w-100 fw-bold" 
                                         onclick="return confirm('¿Estás seguro de que deseas cancelar esta reserva?');">
-                                    🛑 Cancelar Reserva
+                                    Cancelar Reserva
                                 </button>
                             </form>
                         {% endif %}
@@ -78,9 +81,23 @@
                             Este viaje ha expirado.
                         </div>
                     {% elif solicitud.viaje.estado_viaje == 'FINALIZADO' %}
-                        <div class="alert alert-primary py-2 mb-0 small fw-bold">
-                             Viaje Finalizado
-                        </div>
+                        
+                        {% if solicitud.estado_solicitud == 'APROBADA' %}
+                            <div class="alert alert-success py-2 mb-2 small fw-bold">
+                                 ¡Has llegado a tu destino!
+                            </div>
+                            <a href="{% url 'calificar_usuario' solicitud.viaje.id solicitud.viaje.auto.duenio.id %}" class="btn btn-warning w-100 fw-bold shadow-sm text-dark">
+                                ⭐ Calificar al Conductor
+                            </a>
+                            <a href="{% url 'crear_reporte' solicitud.viaje.id solicitud.viaje.auto.duenio.id %}" class="btn btn-outline-danger btn-sm w-100 fw-bold shadow-sm">
+                                 Reportar Conducta
+                            </a>
+                        {% else %}
+                            <div class="alert alert-primary py-2 mb-0 small fw-bold">
+                                 Viaje Finalizado
+                            </div>
+                        {% endif %}
+                        
                     {% endif %}
                 </div>
             </div>

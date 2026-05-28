@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from django.db import models
-
+from django.db.models import Avg
 # Create your models here.
 
 
@@ -64,3 +64,15 @@ class Usuario(AbstractUser):
     username = None
     # Evitar error de sobreescritura
     REQUIRED_FIELDS = []
+    @property
+    def promedio_calificacion(self):
+        """Calcula el promedio de todas las estrellas recibidas"""
+        # 'evaluaciones_recibidas' es el related_name que pusimos en el modelo de Comunidad
+        promedio = self.evaluaciones_recibidas.aggregate(Avg('calificacion'))['calificacion__avg']
+        # Si tiene un promedio, lo redondea a 1 decimal (ej. 4.8). Si no tiene, devuelve 0.0
+        return round(promedio, 1) if promedio else 0.0
+
+    @property
+    def total_evaluaciones(self):
+        """Cuenta cuántas personas lo han calificado"""
+        return self.evaluaciones_recibidas.count()

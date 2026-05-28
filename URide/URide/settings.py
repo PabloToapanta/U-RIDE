@@ -31,7 +31,7 @@ SECRET_KEY = "django-insecure-*==a5yv#&l*^xoh(vr#kv_px4la7*vqr=e0q*4786x+2lcq3ya
 DEBUG = True
 
 
-ALLOWED_HOSTS = ["10.79.19.141", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -39,6 +39,7 @@ ALLOWED_HOSTS = ["10.79.19.141", "localhost", "127.0.0.1"]
 INSTALLED_APPS = [
     "viajes.apps.ViajesConfig",
     "cuentas.apps.CuentasConfig",
+    "comunidad.apps.ComunidadConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -55,6 +56,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'cuentas.middleware.VerificarSuspensionMiddleware',
 ]
 
 ROOT_URLCONF = "URide.urls"
@@ -160,3 +162,32 @@ EMAIL_HOST_PASSWORD = os.getenv("GOOGLEPASSWORD")
 
 # El nombre que verán los usuarios al recibir el correo
 DEFAULT_FROM_EMAIL = "U-Ride Admin <pablotp404@gmail.com>"
+
+
+#LOGS
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'archivo_auditoria': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            # Crea un archivo en la raíz de tu proyecto
+            'filename': os.path.join(BASE_DIR, 'eventos_uride.log'), 
+            'formatter': 'formato_trazabilidad',
+        },
+    },
+    'formatters': {
+        'formato_trazabilidad': {
+            'format': '{asctime} - [EVENTO: {levelname}] - {message}',
+            'style': '{',
+        },
+    },
+    'loggers': {
+        'trazabilidad': {
+            'handlers': ['archivo_auditoria'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow border-0 mb-4">
+            <div class="card-body text-center">
+                <h2 class="fw-bold text-primary mb-3">{{ perfil_usuario.get_full_name|default:perfil_usuario.email }}</h2>
+                
+                {% if perfil_usuario.foto %}
+                <img src="{{ perfil_usuario.foto.url }}" alt="Foto de perfil" class="rounded-circle mb-3 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center mb-3 text-white fs-1 shadow-sm" style="width: 150px; height: 150px;">
+                    {{ perfil_usuario.email|slice:":1"|upper }}
+                </div>
+                {% endif %}
+
+                <p class="text-muted mb-1"> Carrera: {{ perfil_usuario.carrera|default:"No especificada" }}</p>
+                <p class="text-muted mb-1"> Zona Referencial: {{ perfil_usuario.zona_referencial|default:"No especificada" }}</p>
+                
+                <h4 class="text-warning fw-bold mt-3">
+                    ⭐ {{ perfil_usuario.promedio_calificacion }} <span class="text-muted fs-6">({{ perfil_usuario.total_evaluaciones }} reseñas)</span>
+                </h4>
+            </div>
+        </div>
+
+        {% if perfil_usuario.es_conductor and perfil_usuario.vehiculo %}
+        <div class="card shadow border-0 mb-4">
+            <div class="card-header bg-dark text-white fw-bold">
+                 Vehículo de {{ perfil_usuario.first_name|default:"este usuario" }}
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p class="mb-1"><strong>Marca:</strong> {{ perfil_usuario.vehiculo.marca }}</p>
+                        <p class="mb-1"><strong>Modelo:</strong> {{ perfil_usuario.vehiculo.modelo }}</p>
+                        <p class="mb-1"><strong>Color:</strong> {{ perfil_usuario.vehiculo.color }}</p>
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <span class="badge bg-primary fs-6">Capacidad: {{ perfil_usuario.vehiculo.max_capacidad }} personas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <h4 class="fw-bold text-secondary mb-3">Reseñas Recibidas</h4>
+        <div class="list-group shadow-sm">
+            {% for resenia in resenias %}
+            <div class="list-group-item py-3">
+                <div class="d-flex w-100 justify-content-between mb-1">
+                    <h6 class="mb-0 fw-bold text-dark">{{ resenia.evaluador.get_full_name|default:resenia.evaluador.email }}</h6>
+                    <small class="text-muted">{{ resenia.fecha|date:"d M Y" }}</small>
+                </div>
+                <div class="mb-2 text-warning fw-bold">
+                    {% for _ in "12345"|make_list %}
+                        {% if forloop.counter <= resenia.calificacion %}⭐{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+                <p class="mb-0 small text-seondary">
+                    {% if resenia.resenia %}
+                        "{{ resenia.resenia }}"
+                    {% else %}
+                        <em>Sin comentarios adicionales.</em>
+                    {% endif %}
+                </p>
+            </div>
+            {% empty %}
+            <div class="list-group-item text-center py-4 text-muted">
+                Este usuario aún no ha recibido reseñas.
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
