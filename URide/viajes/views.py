@@ -241,10 +241,30 @@ def cambiar_estado_viaje(request, viaje_id, nuevo_estado):
             viaje.estado_viaje = nuevo_estado
             viaje.save()
             
+            # --- NUEVA LÓGICA: Cancelación en cascada ---
+            if nuevo_estado == 'CANCELADO':
+                solicitudes_afectadas = Solicitud.objects.filter(
+                    viaje=viaje,
+                    estado_solicitud__in=['APROBADA', 'EN_ESPERA']
+                )
+                
+                cantidad_afectadas = solicitudes_afectadas.count()
+                solicitudes_afectadas.update(estado_solicitud='CANCELADA')
+                
+                # Si había pasajeros afectados, dejamos un log extra y un mensaje de advertencia
+                if cantidad_afectadas > 0:
+                    logger.info(f"[CANCELACIÓN CASCADA] Se anularon automáticamente {cantidad_afectadas} solicitudes del Viaje #{viaje.id}.")
+                    messages.warning(request, f"Viaje cancelado. Se anularon {cantidad_afectadas} reservas de pasajeros asociadas.")
+                else:
+                    messages.success(request, "Viaje cancelado exitosamente. No había pasajeros a bordo.")
+            else:
+                # Mensaje de éxito normal para el resto de estados (En Curso, Finalizado)
+                messages.success(request, f"Estado del viaje actualizado a: {viaje.get_estado_viaje_display()}")
+            
+            # --- FIN NUEVA LÓGICA ---
+            
             # RNF4: Registro de cambio de estado del viaje
             logger.info(f"[ESTADO VIAJE] El Viaje #{viaje.id} cambió de {estado_anterior} a {viaje.get_estado_viaje_display()} por el conductor {request.user.email}.")
-            
-            messages.success(request, f"Estado del viaje actualizado a: {viaje.get_estado_viaje_display()}")
             
     return redirect('mis_viajes')
 

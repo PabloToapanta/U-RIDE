@@ -35,22 +35,25 @@
             <div class="col-md-3 text-md-end">
               <strong class="text-dark d-block mb-1">Estado / Acciones:</strong>
               {% if viaje.estado_viaje == 'NO_INICIADO' %}
+                  
                   {% if viaje.esta_expirado %}
                       <span class="badge bg-danger mb-2">Expirado / Olvidado</span>
-                      <form action="{% url 'cambiar_estado_viaje' viaje.id 'CANCELADO' %}" method="post" onsubmit="return confirm(' ¿Seguro de CANCELAR este viaje?');">
-                          {% csrf_token %}
-                          <button type="submit" class="btn btn-outline-danger btn-sm fw-bold w-100 shadow-sm">Cancelar Viaje</button>
-                      </form>
                   {% elif viaje.puede_iniciarse %}
                       <span class="badge bg-warning text-dark mb-2">Listo para salir</span>
-                      <form action="{% url 'cambiar_estado_viaje' viaje.id 'EN_CURSO' %}" method="post" onsubmit="return confirm(' ¿Iniciar el viaje ahora?');">
+                      <form action="{% url 'cambiar_estado_viaje' viaje.id 'EN_CURSO' %}" method="post" class="mb-2" onsubmit="return confirm('🚀 ¿Iniciar el viaje ahora?');">
                           {% csrf_token %}
                           <button type="submit" class="btn btn-primary btn-sm fw-bold w-100 shadow-sm"> Iniciar Viaje</button>
                       </form>
                   {% else %}
                       <span class="badge bg-secondary mb-2">Programado</span>
-                      <button class="btn btn-outline-secondary btn-sm fw-bold w-100 mt-1" disabled>Se activa 15 min antes</button>
+                      <button class="btn btn-outline-secondary btn-sm fw-bold w-100 mb-2" disabled>Se activa 15 min antes</button>
                   {% endif %}
+
+                  <form action="{% url 'cambiar_estado_viaje' viaje.id 'CANCELADO' %}" method="post" onsubmit="return confirm('⚠️ ¿Estás totalmente seguro de CANCELAR este viaje? Las reservas de tus pasajeros serán anuladas.');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-outline-danger btn-sm fw-bold w-100 shadow-sm">Cancelar Viaje</button>
+                  </form>
+
               {% elif viaje.estado_viaje == 'EN_CURSO' %}
                   <span class="badge bg-success mb-2"> En curso</span>
                   <form action="{% url 'cambiar_estado_viaje' viaje.id 'FINALIZADO' %}" method="post" onsubmit="return confirm('🏁 ¿Confirmas la llegada al destino?');">
