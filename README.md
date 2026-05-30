@@ -1,73 +1,132 @@
-Entendido. He reestructurado la documentación utilizando un lenguaje técnico formal acorde al nivel académico del proyecto, pero manteniendo una redacción clara que facilite la comprensión de la arquitectura para el resto del equipo.
 
-Aquí tienes el contenido en formato Markdown crudo:
 
-```markdown
-# U-Ride: Documentación Técnica de la Plataforma de Movilidad Estudiantil
+# U-Ride
 
-## 1. Introducción
-U-Ride es una solución tecnológica desarrollada para optimizar el transporte de la comunidad universitaria de la Universidad Técnica de Ambato (UTA). El sistema permite el intercambio de rutas de transporte entre estudiantes, fomentando la seguridad y la eficiencia económica mediante un modelo de economía colaborativa.
+Sistema web de viajes compartidos (carpooling) diseñado para la comunidad universitaria. Construido con Django y PostgreSQL, permite a los estudiantes con vehículo publicar sus rutas y a los pasajeros reservar asientos, gestionando la disponibilidad, estados de viaje y un sistema de reputación.
 
-## 2. Especificaciones Tecnológicas
-La arquitectura del sistema se fundamenta en las siguientes tecnologías:
-* **Lenguaje de Programación:** Python 3.12 o superior.
-* **Framework Web:** Django 5.x.
-* **Sistema de Gestión de Base de Datos:** PostgreSQL.
-* **Procesamiento de Imágenes:** Biblioteca Pillow.
-* **Frontend:** Framework Bootstrap 5.3 mediante red de entrega de contenidos (CDN).
+## Requisitos Previos
 
-## 3. Arquitectura del Proyecto
-El proyecto sigue el patrón arquitectónico de Django, organizando la lógica de negocio en aplicaciones modulares:
+Antes de ejecutar el proyecto, asegúrese de tener instalado el siguiente software en su entorno Windows 11:
 
-* **Aplicación 'cuentas':** Gestiona la identidad digital de los usuarios. Incluye la extensión del modelo de usuario base, validaciones de dominio institucional y flujos de seguridad (registro, activación y recuperación de credenciales).
-* **Aplicación 'viajes':** Administra los recursos vehiculares y la lógica de publicación de rutas. Controla la transición de estados de un estudiante a conductor una vez validado su vehículo.
-* **Templates:** Directorio centralizado que almacena la interfaz de usuario, garantizando la consistencia visual mediante el uso de plantillas base.
+* **Python 3.10 o superior:** Asegúrese de marcar la opción "Add Python to PATH" durante la instalación.
+* **PostgreSQL 14 o superior:** Incluyendo la herramienta pgAdmin para la gestión de bases de datos.
+* **Git:** Para clonar el repositorio.
 
-## 4. Guía de Despliegue en Entorno de Desarrollo
+## Configuración del Entorno de Desarrollo (Windows 11)
 
-### 4.1. Configuración del Entorno Virtual
-Es obligatorio aislar las dependencias del proyecto para evitar conflictos de versiones.
+Siga estos pasos de manera secuencial para levantar el proyecto en su máquina local.
 
-1. Clonar el repositorio institucional.
-2. Ejecutar la creación del entorno: `python -m venv venv`.
-3. Activar el entorno según el sistema operativo:
-   - Linux: `source venv/bin/activate`
-   - Windows: `venv\Scripts\activate`
-4. Instalar las dependencias requeridas: `pip install -r requirements.txt`.
+### 1. Clonar el repositorio
 
-### 4.2. Configuración de la Base de Datos (PostgreSQL)
-Se debe garantizar que el servicio de PostgreSQL esté operativo antes de ejecutar los siguientes comandos en la consola de psql o pgAdmin:
+Abra la terminal (PowerShell o CMD) y ejecute:
 
-```sql
-CREATE DATABASE uride_db;
-CREATE USER uride_admin WITH PASSWORD 'clave_de_seguridad';
-GRANT ALL PRIVILEGES ON DATABASE uride_db TO uride_admin;
-ALTER DATABASE uride_db OWNER TO uride_admin;
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd URide
 
 ```
 
-## 5. Fundamentos Técnicos del Desarrollo
+*(Nota: Reemplace `<URL_DEL_REPOSITORIO>` con la URL real de GitHub).*
 
-### 5.1. Modelo de Usuario Personalizado
+### 2. Configuración de la Base de Datos
 
-Para cumplir con los Requerimientos Funcionales (RF1), se optó por extender la clase `AbstractUser`. La modificación principal radica en el desplazamiento del atributo `username` por el `email` como identificador único de acceso (USERNAME_FIELD).
+Antes de ejecutar la aplicación, debe crear la base de datos en PostgreSQL:
 
-Se implementó un validador de dominio estricto que asegura que solo direcciones terminadas en `@uta.edu.ec` puedan persistir en la base de datos. Asimismo, fue necesario sobrescribir el `BaseUserManager` para alinear los métodos de creación de usuarios (CLI) con la nueva estructura de credenciales.
+1. Abra **pgAdmin** o la consola de `psql`.
+2. Cree una nueva base de datos llamada `uride_db`.
+3. Tenga a la mano su usuario (generalmente `postgres`) y contraseña locales.
 
-### 5.2. Gestión de la Capa de Datos (Modelos)
+### 3. Crear y activar el entorno virtual
 
-* **Usuario:** Extiende los campos base para incluir carrera, zona referencial, fotografía y estado de suspensión.
-* **Vehículo:** Establece una relación uno a uno (OneToOneField) con el usuario, asegurando la integridad referencial donde cada conductor solo puede tener un vehículo asociado en el sistema.
+En la raíz del proyecto, ejecute el siguiente comando para aislar las dependencias:
 
-### 5.3. Flujo de Comunicación (Request/Response)
+```bash
+python -m venv venv
 
-El sistema opera bajo el protocolo HTTP, donde Django procesa los objetos `request`.
+```
 
-* Las peticiones **GET** se destinan a la recuperación de interfaces (ej. carga del formulario de perfil).
-* Las peticiones **POST** se utilizan para la transmisión de datos sensibles y archivos multimedia (ej. actualización de datos o registro de vehículos), requiriendo siempre la validación del token CSRF por seguridad.
+Para activar el entorno virtual en **PowerShell** (Windows 11), ejecute:
 
-## 6. Seguridad y Validación
+```powershell
+.\venv\Scripts\activate
 
-El sistema incorpora un flujo de activación mediante tokens criptográficos de un solo uso. Tras el registro, la cuenta permanece en estado inactivo hasta que el usuario valida su identidad a través de un enlace enviado a su correo institucional. Este mismo mecanismo se emplea para el módulo de recuperación de contraseñas, garantizando que el acceso al sistema sea exclusivo y seguro.
+```
 
+**Nota de resolución de problemas en Windows:** Si PowerShell arroja un error indicando que "la ejecución de scripts está deshabilitada en este sistema", ejecute el siguiente comando como Administrador para otorgar permisos locales y vuelva a intentar la activación:
 
+```powershell
+Set-ExecutionPolicy Unrestricted -Scope CurrentUser
+
+```
+
+### 4. Instalación de dependencias
+
+Con el entorno virtual activado (notará un `(venv)` al inicio de su línea de comandos), instale los paquetes requeridos:
+
+```bash
+pip install -r requirements.txt
+
+```
+
+### 5. Configuración de Variables de Entorno
+
+El proyecto requiere variables de entorno para proteger credenciales.
+
+1. En la raíz del proyecto, localice el archivo `.env.example`.
+2. Haga una copia de este archivo y renómbrela exactamente a `.env`.
+3. Abra el archivo `.env` en su editor de código y modifique las variables de la base de datos con sus credenciales locales de PostgreSQL.
+
+Ejemplo de configuración en `.env`:
+
+```env
+DB_NAME=uride_db
+DB_USER=postgres
+DB_PASSWORD=su_contraseña_local
+DB_HOST=localhost
+DB_PORT=5432
+
+```
+
+### 6. Aplicar Migraciones
+
+Una vez conectada la base de datos, construya la estructura de tablas necesaria ejecutando:
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+
+```
+
+### 7. Crear el superusuario (Administrador)
+
+Para acceder al panel de administración de Django, cree una cuenta con privilegios elevados:
+
+```bash
+python manage.py createsuperuser
+
+```
+
+Siga las instrucciones en consola para definir correo y contraseña.
+
+### 8. Ejecutar el servidor de desarrollo
+
+Finalmente, inicie el servidor local:
+
+```bash
+python manage.py runserver
+
+```
+
+El proyecto estará disponible en su navegador ingresando a: `http://localhost:8000/`. Para acceder al panel de administración, diríjase a `http://localhost:8000/admin/`.
+
+## Estructura Principal del Proyecto
+
+* `comunidad/`: Gestión de reportes, evaluaciones y reputación de usuarios.
+* `cuentas/`: Modelo de usuario personalizado, perfiles, registro de vehículos y autenticación.
+* `viajes/`: Lógica principal de publicación de rutas, reservas de asientos y control de estados.
+* `templates/`: Archivos HTML base y vistas renderizadas con Bootstrap.
+
+## Notas Adicionales para el Equipo
+
+* **Correos Electrónicos:** En el entorno de desarrollo local, el sistema está configurado para imprimir los correos electrónicos (como advertencias o recuperaciones de contraseña) directamente en la consola de la terminal. No se enviarán correos reales a menos que se modifique el `EMAIL_BACKEND` en el archivo `.env`.
+* **Archivos Estáticos y Multimedia:** Las imágenes subidas en entorno local se almacenarán en el directorio `/media/`, el cual está excluido del control de versiones.
