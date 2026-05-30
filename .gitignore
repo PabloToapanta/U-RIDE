@@ -1,14 +1,21 @@
-# Entornos virtuales
+# Entornos Virtuales
 venv/
 env/
-.venv/
-
-# Variables de entorno (¡La caja fuerte!)
 .env
 
-# Archivos compilados de Python (Basura temporal)
-__pycache__/
-*.pyc
+# Archivos de la base de datos (por si acaso usaste sqlite en algún momento)
+*.sqlite3
 
-# Base de datos SQLite (Si alguna vez la usaste de prueba)
-db.sqlite3
+# Archivos subidos por los usuarios
+URide/media/
+
+# Logs e información de depuración
+*.log
+URide/eventos_uride.log
+
+# Archivos compilados de Python (Caché)
+__pycache__/
+*.py[cod]
+
+# Apuntes personales (opcional)
+URide/resumen_codigo.txt
