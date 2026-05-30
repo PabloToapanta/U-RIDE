@@ -36,10 +36,23 @@ class Viaje(models.Model):
         verbose_name="Fecha y hora de salida",
         help_text="Formato: DD/MM/YYYY HH:MM"
     )
+
+    precio = models.DecimalField(
+        max_digits=5,      # Permite hasta 999.99
+        decimal_places=2,  # Dos decimales para los centavos
+        default=1.00,      # IMPORTANTE: Un valor por defecto
+        help_text="Costo ilustrativo del viaje (Ej: 1.50)"
+    )
     
     # Ajustamos el validador mínimo a 1
     asientos_disponibles = models.PositiveSmallIntegerField(
-        validators=[MinValueValidator(1), MaxValueValidator(6)]
+    validators=[MinValueValidator(0), MaxValueValidator(6)]
+    )
+    notas = models.TextField(
+        blank=True, 
+        null=True,
+        verbose_name="Notas y Reglas del viaje",
+        help_text="Especifica reglas de convivencia o detalles del punto de encuentro."
     )
     
     @property

@@ -1,102 +1,119 @@
 <!doctype html>
-<html lang="en">
+<html lang="es-ec">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Home</title>
-        <!--Bootstrap via CDN-->
+        <title>U-Ride</title>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
             rel="stylesheet"
         />
+        
+        <style>
+            :root {
+                /* D80032: Rojo oscuro para acciones principales (botones, links activos) */
+                --bs-primary: #D80032;     
+                
+                /* 8D99AE: Gris azulado para textos secundarios y botones inactivos */
+                --bs-secondary: #8D99AE;   
+                
+                /* 2B2D42: Azul muy oscuro casi negro (Ideal para el Navbar y textos fuertes) */
+                --bs-dark: #2B2D42;        
+                
+                /* EDF2F4: Gris/Blanco humo para el fondo de toda la aplicación */
+                --bs-body-bg: #EDF2F4;     
+                
+                /* EF233C: Rojo brillante (Podemos usarlo para alertas de 'info' o detalles extra) */
+                --bs-info: #EF233C;        
+            }
+
+            /* Forzamos el color de fondo general de la página */
+            body {
+                background-color: var(--bs-body-bg);
+            }
+
+            /* Creamos una clase especial para el Navbar usando tu color 2B2D42 */
+            .navbar-custom {
+                background-color: var(--bs-dark) !important;
+            }
+            
+            /* Hacemos que las tarjetas floten un poco más bonito */
+            .card {
+                border-radius: 12px;
+                border: none;
+            }
+        </style>
     </head>
     <body>
-        <!--navbar(Barra de navegacion),expand-lg(Responsividad),bg-dark(fondo negro),data-bs(palabras en contraste)-->
-        <nav class="navbar navbar-expand-lg bg-dark" data-bs-theme="dark">
-            <!--container(margen a los lados)-->
+        <nav class="navbar navbar-expand-lg navbar-custom shadow-sm" data-bs-theme="dark">
             <div class="container">
-                <a class="navbar-brand" href="{% url 'home' %}">U-Ride</a>
+                <a class="navbar-brand fw-bold" href="{% url 'home' %}">U-Ride</a>
 
-                <!--navbar-toggler(icono-hamburguesa) Es un boton-->
-                <button
-                    class="navbar-toggler"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    data-bs-target="#menuPrincipal"
-                >
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="menuPrincipal">
-                    <!--navbar-nav(le quita los puntos a las vinietas),ms-auto(MarginStart Auto, crea un margen invisible a la isquierda)-->
                     <ul class="navbar-nav ms-auto">
-    <li class="nav-item">
-        <a class="nav-link" href="{% url 'home' %}">Home</a>
-    </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'home' %}">Home</a>
+                        </li>
 
-    {% if user.is_authenticated %}
-        <li class="nav-item">
-            <span class="nav-link text-info">
-                <a class="nav-link text-info" href="{% url 'perfil' %}">
-                    Hola, {{user.first_name|default:user.email}}
-                </a>
-            </span>
-        </li>
-        
-        {% if user.es_conductor %}
-            <li class="nav-item">
-                <a class="nav-link text-success fw-bold" href="{% url 'registro_viaje' %}">Publicar Viaje</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link text-success fw-bold" href="{% url 'mis_viajes' %}">Mi Panel de Control</a>
-            </li>
-        {% else %}
-            <li class="nav-item">
-                <a class="nav-link text-primary" href="{% url 'registro_vehiculo' %}">Volverme Conductor</a>
-            </li>
-        {% endif %}
+                        {% if user.is_authenticated %}
+                            <li class="nav-item">
+                                <span class="nav-link text-white-50">
+                                    Hola, {{user.first_name|default:user.email}}
+                                </span>
+                            </li>
+                            
+                            {% if user.es_conductor %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-white fw-bold" href="{% url 'registro_viaje' %}">Publicar Viaje</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="{% url 'mis_viajes' %}">Panel Conductor</a>
+                                </li>
+                            {% else %}
+                                <li class="nav-item">
+                                    <a class="nav-link text-white" href="{% url 'registro_vehiculo' %}">Volverme Conductor</a>
+                                </li>
+                            {% endif %}
 
-        <li class="nav-item">
-            <a class="nav-link text-primary fw-bold" href="{% url 'mis_reservas' %}">Mis Reservas</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'perfil' %}">Mi Perfil</a>
-        </li>
-        <li class="nav-item">
-            <form action="{% url 'logout' %}" method="post" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="nav-link text-danger border-0 bg-transparent">Cerrar Sesión</button>
-            </form>
-        </li>
-
-    {% else %}
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'registro' %}">Registrarse</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link btn btn-primary text-white px-3 ms-lg-2" href="{% url 'login' %}">Iniciar Sesión</a>
-        </li>
-    {% endif %}
-</ul>
+                            <li class="nav-item">
+                                <a class="nav-link text-white" href="{% url 'mis_reservas' %}">Mis Reservas</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'perfil' %}">Mi Perfil</a>
+                            </li>
+                            <li class="nav-item">
+                                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="nav-link text-danger border-0 bg-transparent fw-bold">Salir</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'registro' %}">Registrarse</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link btn btn-primary text-white px-3 ms-lg-2 fw-bold shadow-sm" href="{% url 'login' %}">Iniciar Sesión</a>
+                            </li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </nav>
-        <main class="container mt-4">
-            {% if messages %} {% for message in messages %}
-            <div
-                class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm"
-                role="alert"
-            >
-                {{ message }}
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"
-                    aria-label="Close"
-                ></button>
-            </div>
-            {% endfor %} 
+
+        <main class="container mt-4 mb-5">
+            {% if messages %} 
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %} 
             {% endif %} 
+            
             {% block content %} 
             {% endblock %}
         </main>

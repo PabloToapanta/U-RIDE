@@ -45,6 +45,12 @@ class Reporte(models.Model):
     
     # Evidencia (Opcional, porque a veces es un reporte verbal)
     prueba = models.ImageField(upload_to='evidencias_reportes/', blank=True, null=True)
-
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['viaje', 'reportador', 'reportado'], 
+                name='unico_reporte_por_viaje'
+            )
+        ]
     def __str__(self):
         return f"Reporte de {self.reportador.email} a {self.reportado.email} - {self.get_estado_reporte_display()}"

@@ -1,77 +1,165 @@
 {% extends 'base.html' %} 
+
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card shadow mb-4">
-      <div class="card-body">
-        <h2 class="text-center mb-4">Mi Perfil Estudiantil</h2>
-
-        {% if user.foto %}
-        <div class="text-center mb-4">
-          <img
-            src="{{ user.foto.url }}"
-            alt="Foto de {{ user.first_name }}"
-            class="rounded-circle"
-            style="width: 150px; height: 150px; object-fit: cover"
-          />
-        </div>
-        {% endif %} 
+<div class="row justify-content-center mt-4">
+    <div class="col-md-9 col-lg-8">
         
-        <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="row">{{ form.as_p }}</div>
-          <button type="submit" class="btn btn-primary w-100 mt-3">Guardar Cambios</button>
-        </form>
-        
-        {% if user.vehiculo %}
-        <div class="card shadow border-dark mt-4">
-          <div class="card-header bg-dark text-white">Datos de mi Vehiculo</div>
-          <div class="card-body">
-            <p><strong>Marca:</strong> {{ user.vehiculo.marca }}</p>
-            <p><strong>Modelo:</strong> {{ user.vehiculo.modelo }}</p>
-            <p><strong>Anio:</strong> {{ user.vehiculo.anio }}</p>
-            <p><strong>Color:</strong> {{ user.vehiculo.color}}</p>
-            <p><strong>Placa:</strong> {{ user.vehiculo.placa }}</p>
-            <p><strong>Capacidad Maxima:</strong> {{ user.vehiculo.max_capacidad }}</p>
-          </div>
-        </div>
-        {% else %}
-        <div class="alert alert-warning mt-4">
-          Aún no eres Conductor<br />
-          <a href="{% url 'registro_vehiculo' %}" class="btn btn-primary mt-2">Añadir Vehiculo</a>
-        </div>
-        {% endif %}
-      </div>
-    </div>
+        <div class="card shadow-sm border-0 rounded-3 mb-4 bg-white">
+            <div class="card-body p-4 p-md-5">
+                <h2 class="fw-bold text-dark text-center mb-4">Mi Perfil Estudiantil</h2>
 
-    <h4 class="fw-bold text-secondary mb-3">Mis Reseñas Recibidas</h4>
-    <div class="list-group shadow-sm mb-5">
-        {% for resenia in resenias %}
-        <div class="list-group-item py-3">
-            <div class="d-flex w-100 justify-content-between mb-1">
-                <h6 class="mb-0 fw-bold text-dark">Evaluado por: {{ resenia.evaluador.get_full_name|default:resenia.evaluador.email }}</h6>
-                <small class="text-muted">{{ resenia.fecha|date:"d M Y" }}</small>
-            </div>
-            <div class="mb-2 text-warning fw-bold">
-                {% for _ in "12345"|make_list %}
-                    {% if forloop.counter <= resenia.calificacion %}⭐{% else %}☆{% endif %}
-                {% endfor %}
-            </div>
-            <p class="mb-0 small text-secondary">
-                {% if resenia.resenia %}
-                    "{{ resenia.resenia }}"
+                {% if user.foto %}
+                <div class="text-center mb-4">
+                    <img
+                        src="{{ user.foto.url }}"
+                        alt="Foto de {{ user.first_name }}"
+                        class="rounded-circle shadow-sm border border-2 border-light"
+                        style="width: 130px; height: 130px; object-fit: cover"
+                    />
+                </div>
                 {% else %}
-                    <em>Sin comentarios adicionales.</em>
+                <div class="text-center mb-4">
+                    <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center text-white fs-1 shadow-sm" 
+                         style="width: 130px; height: 130px; background-color: #8D99AE !important;">
+                        {{ user.email|slice:":1"|upper }}
+                    </div>
+                </div>
+                {% endif %} 
+                
+                <div class="row g-2 justify-content-center mb-4 text-center">
+                    <div class="col-6 col-sm-4">
+                        <div class="p-2 bg-light rounded border-start border-3 border-dark">
+                            <span class="text-muted small d-block">Tu Reputación</span>
+                            <strong class="text-dark">⭐ {{ user.promedio_calificacion|default:"5.0" }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4">
+                        <div class="p-2 bg-light rounded border-start border-3 border-dark">
+                            <span class="text-muted small d-block">Viajes como Pasajero</span>
+                            <strong class="text-dark">{{ user.total_viajes_pasajero }}</strong>
+                        </div>
+                    </div>
+                    {% if user.es_conductor %}
+                    <div class="col-6 col-sm-4">
+                        <div class="p-2 bg-light rounded border-start border-3 border-dark">
+                            <span class="text-muted small d-block">Viajes como Conductor</span>
+                            <strong class="text-dark"> {{ user.total_viajes_conductor }}</strong>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        {% for field in form %}
+                            <div class="{% if field.name == 'foto' %}col-12{% else %}col-md-6{% endif %} mb-3">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold text-secondary small mb-1">
+                                    {{ field.label }}
+                                </label>
+                                
+                                {{ field }}
+                                
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted small">
+                                        {{ field.help_text|safe }}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1 fw-semibold">
+                                        {{ field.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm mt-3 py-2">
+                         Guardar Cambios del Perfil
+                    </button>
+                </form>
+                
+                {% if user.vehiculo %}
+                <div class="card shadow-sm border-0 mt-5">
+                    <div class="card-header bg-dark text-white fw-bold py-3">
+                         Datos de mi Vehículo Registrado
+                    </div>
+                    <div class="card-body bg-light p-4">
+                        <div class="row g-3">
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Marca</span>
+                                <strong class="text-dark">{{ user.vehiculo.marca }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Modelo</span>
+                                <strong class="text-dark">{{ user.vehiculo.modelo }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Año</span>
+                                <strong class="text-dark">{{ user.vehiculo.anio }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Color</span>
+                                <strong class="text-dark">{{ user.vehiculo.color }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Placa</span>
+                                <strong class="text-primary fw-bold">{{ user.vehiculo.placa }}</strong>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <span class="text-muted small d-block">Capacidad Máxima</span>
+                                <strong class="text-dark">{{ user.vehiculo.max_capacidad }} pasajeros</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-warning border-0 shadow-sm mt-5 p-4 rounded-3 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1">¿Tienes un vehículo?</h5>
+                        <p class="mb-0 text-secondary small">Aún no eres Conductor en el sistema. Registra tu auto para empezar a publicar rutas.</p>
+                    </div>
+                    <a href="{% url 'registro_vehiculo' %}" class="btn btn-dark fw-bold shadow-sm mt-3 mt-sm-0 px-4">
+                        Añadir Vehículo
+                    </a>
+                </div>
                 {% endif %}
-            </p>
+            </div>
         </div>
-        {% empty %}
-        <div class="list-group-item text-center py-4 text-muted">
-            Aún no tienes reseñas.
-        </div>
-        {% endfor %}
-    </div>
 
-  </div>
+        <h4 class="fw-bold text-secondary mb-3 mt-5">Mis Reseñas Recibidas</h4>
+        <div class="list-group shadow-sm border-0 rounded-3 mb-5">
+            {% for resenia in resenias %}
+            <div class="list-group-item bg-white py-3 px-4 border-0 border-bottom">
+                <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                    <h6 class="mb-0 fw-bold text-dark">
+                        Evaluado por: {{ resenia.evaluador.get_full_name|default:resenia.evaluador.email }}
+                    </h6>
+                    <small class="text-muted">{{ resenia.fecha|date:"d M Y" }}</small>
+                </div>
+                <div class="mb-2 text-warning fs-5">
+                    {% for _ in "12345"|make_list %}
+                        {% if forloop.counter <= resenia.calificacion %}⭐{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+                <p class="mb-0 small text-secondary bg-light p-3 rounded-2 border-start border-3 border-secondary italic">
+                    {% if resenia.resenia %}
+                        "{{ resenia.resenia }}"
+                    {% else %}
+                        <em class="text-muted">Sin comentarios adicionales de este viaje.</em>
+                    {% endif %}
+                </p>
+            </div>
+            {% empty %}
+            <div class="list-group-item text-center py-5 bg-white text-muted border-0">
+                <p class="mb-0 fs-5 text-secondary">Aún no tienes calificaciones.</p>
+                <small class="text-muted">Completa viajes con tus compañeros para empezar a ganar reputación.</small>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
 </div>
 {% endblock %}

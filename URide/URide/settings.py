@@ -149,19 +149,19 @@ LOGOUT_REDIRECT_URL = "/login/"  # Después de cerrar sesión, llévalo al login
 
 
 # Configuración para enviar correos reales (SMTP)
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+#EMAIL_HOST = "smtp.gmail.com"
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
 
 # El correo desde el cual enviarás los mensajes
-EMAIL_HOST_USER = "pablotp404@gmail.com"
+#EMAIL_HOST_USER = "pablotp404@gmail.com"
 
 # La clave de 16 letras de google
-EMAIL_HOST_PASSWORD = os.getenv("GOOGLEPASSWORD")
+#EMAIL_HOST_PASSWORD = os.getenv("GOOGLEPASSWORD")
 
 # El nombre que verán los usuarios al recibir el correo
-DEFAULT_FROM_EMAIL = "U-Ride Admin <pablotp404@gmail.com>"
+#DEFAULT_FROM_EMAIL = "U-Ride Admin <pablotp404@gmail.com>"
 
 
 #LOGS

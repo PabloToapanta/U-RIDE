@@ -66,23 +66,27 @@ def crear_reporte(request, viaje_id, reportado_id):
     reportado = get_object_or_404(Usuario, id=reportado_id)
     reportador = request.user
 
-    # Regla de negocio: No se puede reportar a sí mismo
+    # Regla de negocio 1: No se puede reportar a sí mismo
     if reportador == reportado:
         messages.error(request, "No puedes reportarte a ti mismo.")
         return redirect('home')
 
+    # NUEVA REGLA DE NEGOCIO: Evitar spam de reportes
+    ya_reporto = Reporte.objects.filter(viaje=viaje, reportador=reportador, reportado=reportado).exists()
+    if ya_reporto:
+        messages.warning(request, "Ya has enviado un reporte contra este usuario por este viaje. La administración lo está revisando.")
+        return redirect('home')
+
     if request.method == 'POST':
-        # IMPORTANTE: request.FILES es necesario para guardar la imagen
         form = ReporteForm(request.POST, request.FILES)
         if form.is_valid():
             reporte = form.save(commit=False)
             reporte.viaje = viaje
             reporte.reportador = reportador
             reporte.reportado = reportado
-            # El estado 'PENDIENTE' ya está configurado por defecto en el modelo
             reporte.save()
             
-            messages.success(request, f"Tu reporte contra {reportado.get_full_name() or reportado.email} ha sido enviado al administrador para su revisión.")
+            messages.success(request, f"Tu reporte contra {reportado.get_full_name() or reportado.email} ha sido enviado al administrador.")
             return redirect('home')
     else:
         form = ReporteForm()

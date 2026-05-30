@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Avg
+from django.apps import apps
 # Create your models here.
 
 
@@ -64,6 +65,22 @@ class Usuario(AbstractUser):
     username = None
     # Evitar error de sobreescritura
     REQUIRED_FIELDS = []
+    @property
+    def total_viajes_conductor(self):
+        Viaje = apps.get_model('viajes', 'Viaje')
+        # Contamos solo los viajes de sus vehículos que ya hayan FINALIZADO
+        return Viaje.objects.filter(auto__duenio=self, estado_viaje='FINALIZADO').count()
+
+    # NUEVO: Contador dinámico de viajes como Pasajero
+    @property
+    def total_viajes_pasajero(self):
+        Solicitud = apps.get_model('viajes', 'Solicitud')
+        # Contamos las solicitudes APROBADAS en viajes que ya hayan FINALIZADO
+        return Solicitud.objects.filter(
+            pasajero=self, 
+            estado_solicitud='APROBADA', 
+            viaje__estado_viaje='FINALIZADO'
+        ).count()
     @property
     def promedio_calificacion(self):
         """Calcula el promedio de todas las estrellas recibidas"""
